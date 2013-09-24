@@ -140,6 +140,7 @@ Example `cronjob` that runs the `NotificationManager.Notifications` every minute
 
 ## Todo
 
+* Add namespaces
 * Comments!
 * Add device specific push notification
 * Set up more error checking

@@ -12,8 +12,7 @@
         }
     ],
     "require": {
-        "composer/installers": "~1.0",
-        "twilio/sdk": ">=3.10.0"
+        "composer/installers": "~1.0"
     },
     "extra": {
         "installer-name": "NotificationManager"

@@ -4,7 +4,7 @@ App::uses('Notifier', 'NotificationManager.Lib');
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
- * @property User $User User model
+ * 
  */
 class NotificationsShell extends AppShell
 {

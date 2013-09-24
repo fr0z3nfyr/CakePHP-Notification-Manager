@@ -2,6 +2,9 @@
 
 App::uses('Notification', 'NotificationManager.Model');
 
+/**
+ * 
+ */
 class Notifier
 {
 	public static function notify($notification)

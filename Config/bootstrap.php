@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * 
+ */
     
 Configure::write('UrbanAirship.app.key', '');
 Configure::write('UrbanAirship.app.secret', '');

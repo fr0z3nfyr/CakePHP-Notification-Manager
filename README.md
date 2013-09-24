@@ -4,12 +4,13 @@ MySQL and CRON based notification manager for CakePHP.
 
 ## Background
 
-Supports notification setup for email, push notification, and sms.
+Supports notification setup for email, push notification.
 
 ## Requirements
 
 * PHP >= 5.3
 * CakePHP 2.x
+* Basic knowledge of CRON setup
 * UrbanAirship account for push notifications
 * Twillio account for sms notifications (coming soon)
 
@@ -139,10 +140,15 @@ Example `cronjob` that runs the `NotificationManager.Notifications` every minute
 
 ## Todo
 
+* Comments!
 * Add device specific push notification
 * Set up more error checking
 * Add SMS
 * Add Unit tests!
+
+## Aknowledgements
+
+The basic layout of this of this README was taken from https://github.com/dkullmann/CakePHP-Elastic-Search-DataSource
 
 ## License
 

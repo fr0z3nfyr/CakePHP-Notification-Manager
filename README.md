@@ -76,13 +76,10 @@ Set up notification events in your models.
 Example - Send `Welcome` email for a new user:
 
     App::uses('Notification', 'NotificationManager.Model');
-    
     ...
-    
     public function register()
     {
         ...
-        
         $notification = [
             'model' => 'User', // name of the object model
             'object_id' => $this->id, // id of the object
@@ -103,21 +100,16 @@ Example - Send `Welcome` email for a new user:
         } catch (Exception $e) {
             // failure catch
         }
-        
         ...
     }
-	
 
 Example - Send push notification to a user:
 
     App::uses('Notification', 'NotificationManager.Model');
-    
     ...
-    
     public function pushIt()
     {
-        ...
-    
+        ... 
         $notification = [
             'model' => 'User',
             'object_id' => $this->id,
@@ -134,7 +126,6 @@ Example - Send push notification to a user:
         } catch (Exception $e) {
             // failure catch
         }
-    
         ...
     }
 
@@ -142,7 +133,7 @@ Set up a `cronjob` to run the notifications in the background:
 
     $ sudo crontab -e
 
-Example `cronjob` that runs the `NotificationManager.Notifications` every minute:
+Example `cronjob` that runs the `NotificationManager.Notifications` every minute, replace `/var/www/html/app/Console/cake` with the cake console location in your own setup:
 
     */1 * * * * /var/www/html/app/Console/cake NotificationManager.Notifications
 

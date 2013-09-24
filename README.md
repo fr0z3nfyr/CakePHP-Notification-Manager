@@ -89,7 +89,7 @@ Example - Send `Welcome` email for a new user:
             'vars' => json_encode([ // In this case vars for the email template
                 'first_name' => 'John',
                 'last_name' => 'Doe',
-                'email' => 'test@test.com'
+                'email' => 'test@example.com'
             ]),
             'template' => 'welcome' // Template name for email
         ];

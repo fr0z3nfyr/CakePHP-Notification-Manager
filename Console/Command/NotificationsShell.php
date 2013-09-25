@@ -1,5 +1,7 @@
 <?php
 
+use NotificationManager\Notifier;
+
 App::uses('Notifier', 'NotificationManager.Lib');
 App::uses('Notification', 'NotificationManager.Model');
 

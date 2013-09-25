@@ -1,5 +1,13 @@
 <?php
 
+Namespace NotificationManager;
+
+use UrbanAirship\Airship;
+use UrbanAirship\UALog;
+use UrbanAirship\Push as P;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
@@ -34,34 +42,22 @@ class Notifier
                 'alert' => $notification->field('subject')
             ]       
         ]);
-        
-        $session = curl_init(Configure::read('UrbanAirship.push.url')); 
-        
-        curl_setopt($session, CURLOPT_USERPWD, 
-            Configure::read('UrbanAirship.app.key') . ':' . Configure::read('UrbanAirship.app.secret')
-        ); 
-        curl_setopt($session, CURLOPT_POST, True); 
-        curl_setopt($session, CURLOPT_POSTFIELDS, $content); 
-        curl_setopt($session, CURLOPT_HEADER, False); 
-        curl_setopt($session, CURLOPT_RETURNTRANSFER, True); 
-        curl_setopt($session, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: application/vnd.urbanairship+json; version=3;'
-        ]);
-        
-        $content = curl_exec($session); 
-        
-        // echo $content;
-        
-        $response = curl_getinfo($session);
-        
-        if ($response['http_code'] != 200) { 
-            $notification->saveField('errors', json_encode($response));
-        } else {
+                
+        UALog::setLogHandlers(array(new StreamHandler("php://stdout", Logger::DEBUG)));
+
+        $airship = new Airship(Configure::read('UrbanAirship.key'), Configure::read('UrbanAirship.secret'));
+
+        try {
+            $response = $airship->push()
+                ->setAudience(P\tag($notification->field('user_id')))
+                ->setNotification(P\notification($notification->field('subject')))
+                ->setDeviceTypes(P\all)
+                ->send();
+            
             $notification->saveField('sent', true);
-        } 
-        
-        curl_close($session);
+        } catch (AirshipException $e) {
+            $notification->saveField('errors', json_encode($e));
+        }
         
         return true;
     }

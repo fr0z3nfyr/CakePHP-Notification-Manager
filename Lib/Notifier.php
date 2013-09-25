@@ -15,11 +15,11 @@ class Notifier
         $notification->read();
         
         if ($notification->field('type') == 'PUSH') {
-            Notifier::push($notification);
+            \OraInteractive\NotificationManager\Notifier::push($notification);
         } else if ($notification->field('type') == 'EMAIL') {
-            Notifier::email($notification);
+            \OraInteractive\NotificationManager\Notifier::email($notification);
         } else if ($notification->field('sms') == 'SMS') {
-            Notifier::sms($notification);
+            \OraInteractive\NotificationManager\Notifier::sms($notification);
         }
         
         return true;

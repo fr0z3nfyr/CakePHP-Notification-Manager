@@ -1,5 +1,4 @@
 <?php
-
 namespace OraInteractive\NotificationManager
 
 App::uses('Notification', 'NotificationManager.Model');

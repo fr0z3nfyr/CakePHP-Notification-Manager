@@ -1,5 +1,6 @@
 <?php
-
+namespace OraInteractive\NotificationManager
+    
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
@@ -14,7 +15,7 @@ class NotificationsShell extends AppShell
         $notifications = $NotificationModel->findBySentAndErrors(false, null);
         
         foreach ($notifications as $notification) {
-            \OraInteractive\NotificationManager\Notifier::notify($notification);
+            OraInteractive\NotificationManager\Notifier::notify($notification);
         }
 	}
 

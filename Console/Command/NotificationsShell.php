@@ -1,6 +1,5 @@
 <?php
 
-App::uses('Notifier', 'NotificationManager.Lib');
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
@@ -15,7 +14,7 @@ class NotificationsShell extends AppShell
         $notifications = $NotificationModel->findBySentAndErrors(false, null);
         
         foreach ($notifications as $notification) {
-            Notifier::notify($notification);
+            \OraInteractive\NotificationManager\Notifier::notify($notification);
         }
 	}
 

@@ -12,7 +12,11 @@
         }
     ],
     "require": {
-        "composer/installers": "~1.0"
+        "composer/installers": "~1.0",
+        "urbanairship/urbanairship": ">=0.1.3"
+    },
+    "config": {
+        "vendor-dir": "Vendor"
     },
     "extra": {
         "installer-name": "NotificationManager"

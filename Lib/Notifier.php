@@ -1,5 +1,4 @@
 <?php
-namespace OraInteractive\NotificationManager;
 
 App::uses('Notification', 'NotificationManager.Model');
 
@@ -14,11 +13,11 @@ class Notifier
         $notification->read();
         
         if ($notification->field('type') == 'PUSH') {
-            \OraInteractive\NotificationManager\Notifier::push($notification);
+            Notifier::push($notification);
         } else if ($notification->field('type') == 'EMAIL') {
-            \OraInteractive\NotificationManager\Notifier::email($notification);
+            Notifier::email($notification);
         } else if ($notification->field('sms') == 'SMS') {
-            \OraInteractive\NotificationManager\Notifier::sms($notification);
+            Notifier::sms($notification);
         }
         
         return true;

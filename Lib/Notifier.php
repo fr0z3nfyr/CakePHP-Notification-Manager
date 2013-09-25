@@ -1,5 +1,7 @@
 <?php
 
+namespace OraInteractive\NotificationManager
+
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
@@ -70,26 +72,13 @@ class Notifier
     {
         $vars = json_decode($notification->field('vars'), true);
         
-        if (empty($vars['email'])) {
-            App::uses($notification->field('model'), 'Model');
-            
-            $model = $notification->field('model');
-            
-            $obj = new $model($notification->field('object_id'));
-            $obj->read();
-            
-            $emailAddress = $obj->field('email');
-        } else {
-            $emailAddress = $vars['email'];
-        }
-        
         try {
             $email = new CakeEmail('default');
             $email -> viewVars($vars)
                 -> template($notification->field('template'), 'default')
                 -> emailFormat('html')
                 -> subject($notification->field('subject'))
-                -> to($emailAddress)
+                -> to(Notifier::getProperty($notification))
                 -> send();
             
             $notification->saveField('sent', true);
@@ -103,5 +92,17 @@ class Notifier
     public static function sms(\Notification $notification)
     {
         return true;
+    }
+    
+    private static function getProperty(\Notification $notification)
+    {
+        App::uses($notification->field('model'), 'Model');
+        
+        $model = $notification->field('model');
+        
+        $obj = new $model($notification->field('object_id'));
+        $obj->read();
+        
+        return $obj->field($notification->field('property'));
     }
 }

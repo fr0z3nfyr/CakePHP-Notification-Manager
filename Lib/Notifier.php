@@ -1,7 +1,5 @@
 <?php
 
-Namespace NotificationManager;
-
 use UrbanAirship\Airship;
 use UrbanAirship\UALog;
 use UrbanAirship\Push as P;

@@ -5,7 +5,7 @@
  * Remember to fill in the fields!
  */
 
-if (Configure::check('NotificationManager.UrbanAirship')) {
+if (!Configure::check('NotificationManager.UrbanAirship')) {
     Configure::write('NotificationManager.UrbanAirship.key', '');
     Configure::write('NotificationManager.UrbanAirship.secret', '');
 }

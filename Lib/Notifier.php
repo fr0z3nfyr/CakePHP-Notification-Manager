@@ -6,8 +6,6 @@ use UrbanAirship\Push as P;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-App::uses('Notification', 'NotificationManager.Model');
-
 /**
  * 
  */
@@ -43,7 +41,10 @@ class Notifier
                 
         UALog::setLogHandlers(array(new StreamHandler("php://stdout", Logger::DEBUG)));
 
-        $airship = new Airship(Configure::read('UrbanAirship.key'), Configure::read('UrbanAirship.secret'));
+        $airship = new Airship(
+            Configure::read('NotificationManager.UrbanAirship.key'), 
+            Configure::read('NotificationManager.UrbanAirship.secret')
+        );
 
         try {
             $response = $airship->push()

@@ -12,10 +12,20 @@ class NotificationsShell extends AppShell
 	{
         $NotificationModel = new Notification();
         
-        $notifications = $NotificationModel->findBySentAndErrors(false, null);
-        
+        $notifications = $NotificationModel->findAllBySentAndErrors(false, null);
+
         foreach ($notifications as $notification) {
-            Notifier::notify($notification->data['Notification']);
+            $response = Notifier::notify($notification['Notification']);
+            
+            if ($response === true) {
+                $NotificationModel->id = $notification['Notification']['id'];
+                $NotificationModel->saveField('sent', true);
+                $this->out($notification['Notification']['type'].' sent!');
+            } else {
+                $NotificationModel->id = $notification['Notification']['id'];
+                $NotificationModel->saveField('errors', json_encode($response));
+                $this->out($notification['Notification']['type'].' error!');
+            }
         }
 	}
 

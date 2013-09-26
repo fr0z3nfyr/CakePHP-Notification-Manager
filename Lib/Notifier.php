@@ -27,35 +27,36 @@ class Notifier
     {
         $data = json_decode($notification['data']);
         
+        $notify = new stdClass();
+        
         switch ($notification['type']) {
             case 'PUSH':
-                return (object) [
-                    'to' => P\tag(static::getProperty($notification)),
-                    'notification' => P\notification($data->notification),
-                    'devices' => P\all
-                ];
+                $notify->to = P\tag(static::getProperty($notification));
+                $notify->notification = P\notification($data->notification);
+                $notify->devices = P\all;
+                break;
             case 'EMAIL':
-                return (object) [
-                    'settings' => !empty($data->settings) ? $data->settings : 'default',
-                    'vars' => !empty($data->vars) ? $data->vars : [],
-                    'template' => !empty($data->template) ? $data->template : 'default',
-                    'format' => !empty($data->format) ? $data->format : 'html',
-                    'subject' => !empty($data->subject) ? $data->subject : '',
-                    'to' => static::getProperty($notification)
-                ];
+                $notify->to = static::getProperty($notification);
+                $notify->settings = !empty($data->settings) ? $data->settings : 'default';
+                $notify->vars = !empty($data->vars) ? $data->vars : [];
+                $notify->template = !empty($data->template) ? $data->template : 'default';
+                $notify->format = !empty($data->format) ? $data->format : 'html';
+                $notify->subject = !empty($data->subject) ? $data->subject : '';
+                break;
             case 'SMS':
-                return false;
+                $notify = false;
+                break;
         }
-        
-        switch ($notification->field('type')) {
+
+        switch ($notification['type']) {
             case 'PUSH':
-                Notifier::push($data);
+                Notifier::push($notify);
                 break;
             case 'EMAIL':
-                Notifier::email($data);
+                Notifier::email($notify);
                 break;
             case 'SMS':
-                Notifier::sms($data);
+                Notifier::sms($notify);
                 break;
         }
         
@@ -77,11 +78,8 @@ class Notifier
                 ->setNotification($data->notification)
                 ->setDeviceTypes($data->deviceTypes)
                 ->send();
-            
-            $notification->saveField('sent', true);
-            $this->out('Push notification sent.')
         } catch (AirshipException $e) {
-            $notification->saveField('errors', json_encode($e));
+            return $e->getMessage();
         }
         
         return true;
@@ -97,11 +95,8 @@ class Notifier
                 -> subject($data->subject)
                 -> to($data->to)
                 -> send();
-            
-            $notification->saveField('sent', true);
-            $this->out('Email notification sent.')
         } catch (Exception $e) {
-            $notification->saveField('errors', json_encode($e->getMessage()));
+            return $e->getMessage();
         }
         
         return true;

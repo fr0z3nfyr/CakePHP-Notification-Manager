@@ -1,5 +1,5 @@
 ##
-#
+# Notifications table
 ##
 
 CREATE TABLE `notifications` (
@@ -8,9 +8,7 @@ CREATE TABLE `notifications` (
   `object_id` int(11) DEFAULT NULL,
   `property` varchar(128) DEFAULT NULL,
   `type` enum('EMAIL','PUSH','SMS') DEFAULT NULL,
-  `subject` varchar(256) DEFAULT NULL,
-  `vars` text,
-  `template` varchar(256) DEFAULT NULL,
+  `data` text,
   `sent` tinyint(1) DEFAULT '0',
   `errors` text,
   `created` datetime DEFAULT NULL,

@@ -11,49 +11,75 @@ use Monolog\Handler\StreamHandler;
  */
 class Notifier
 {
+    private static function getProperty($notification)
+    {
+        App::uses($notification['model'], 'Model');
+        
+        $model = $notification['model'];
+        
+        $obj = new $model($notification['object_id']);
+        $obj->read();
+        
+        return $obj->field($notification['property']));
+    }
+    
 	public static function notify($notification)
     {
-        $notification = new Notification($notification['id']);
-        $notification->read();
+        $data = json_decode($notification['data']);
         
-        if ($notification->field('type') == 'PUSH') {
-            Notifier::push($notification);
-        } else if ($notification->field('type') == 'EMAIL') {
-            Notifier::email($notification);
-        } else if ($notification->field('sms') == 'SMS') {
-            Notifier::sms($notification);
+        switch ($notification['type']) {
+            case 'PUSH':
+                return (object) [
+                    'to' => P\tag(static::getProperty($notification)),
+                    'notification' => P\notification($data->notification),
+                    'devices' => P\all
+                ];
+            case 'EMAIL':
+                return (object) [
+                    'settings' => !empty($data->settings) ? $data->settings : 'default',
+                    'vars' => !empty($data->vars) ? $data->vars : [],
+                    'template' => !empty($data->template) ? $data->template : 'default',
+                    'format' => !empty($data->format) ? $data->format : 'html',
+                    'subject' => !empty($data->subject) ? $data->subject : '',
+                    'to' => static::getProperty($notification)
+                ];
+            case 'SMS':
+                return false;
+        }
+        
+        switch ($notification->field('type')) {
+            case 'PUSH':
+                Notifier::push($data);
+                break;
+            case 'EMAIL':
+                Notifier::email($data);
+                break;
+            case 'SMS':
+                Notifier::sms($data);
+                break;
         }
         
         return true;
     }
     
-    public static function push(\Notification $notification)
+    public static function push($data)
     {
-        $content = json_encode([
-            'audience' => [
-                'tag' => $notification->field('user_id')
-            ],
-            'device_types' => 'all', 
-            'notification' => [
-                'alert' => $notification->field('subject')
-            ]       
-        ]);
-                
         UALog::setLogHandlers(array(new StreamHandler("php://stdout", Logger::DEBUG)));
 
         $airship = new Airship(
             Configure::read('NotificationManager.UrbanAirship.key'), 
             Configure::read('NotificationManager.UrbanAirship.secret')
         );
-
+        
         try {
             $response = $airship->push()
-                ->setAudience(P\tag($notification->field('user_id')))
-                ->setNotification(P\notification($notification->field('subject')))
-                ->setDeviceTypes(P\all)
+                ->setAudience($data->to)
+                ->setNotification($data->notification)
+                ->setDeviceTypes($data->deviceTypes)
                 ->send();
             
             $notification->saveField('sent', true);
+            $this->out('Push notification sent.')
         } catch (AirshipException $e) {
             $notification->saveField('errors', json_encode($e));
         }
@@ -61,20 +87,19 @@ class Notifier
         return true;
     }
     
-    public static function email(\Notification $notification)
+    public static function email($data)
     {
-        $vars = json_decode($notification->field('vars'), true);
-        
         try {
-            $email = new CakeEmail('default');
-            $email -> viewVars($vars)
-                -> template($notification->field('template'), 'default')
-                -> emailFormat('html')
-                -> subject($notification->field('subject'))
-                -> to(Notifier::getProperty($notification))
+            $email = new CakeEmail($data->settings);
+            $email -> viewVars($data->vars)
+                -> template($data->template)
+                -> emailFormat($data->format)
+                -> subject($data->subject)
+                -> to($data->to)
                 -> send();
             
             $notification->saveField('sent', true);
+            $this->out('Email notification sent.')
         } catch (Exception $e) {
             $notification->saveField('errors', json_encode($e->getMessage()));
         }
@@ -82,20 +107,8 @@ class Notifier
         return true;
     }
     
-    public static function sms(\Notification $notification)
+    public static function sms($data)
     {
         return true;
-    }
-    
-    private static function getProperty(\Notification $notification)
-    {
-        App::uses($notification->field('model'), 'Model');
-        
-        $model = $notification->field('model');
-        
-        $obj = new $model($notification->field('object_id'));
-        $obj->read();
-        
-        return $obj->field($notification->field('property'));
     }
 }

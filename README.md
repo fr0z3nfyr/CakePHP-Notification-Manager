@@ -112,13 +112,17 @@ Example - Send `Welcome` email for a new user:
             'object_id' => $this->id, // id of the object
             'property' => 'email', // property of the object that will be used to notify (ex. email, phone, cell)
             'type' => 'EMAIL', // Type of notification, can be EMAIL, PUSH, or SMS
-            'subject' => 'Welcome to my new app!', // The subject line of the email
-            'vars' => json_encode([ // In this case vars for the email template
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'test@example.com'
-            ]),
-            'template' => 'welcome' // Template name for email
+            'data' => json_encode([
+                'settings' => 'default', // email settings
+                'subject' => 'Welcome!', // email subject
+                'template' => 'welcome', // email template
+                'format' => 'html', // email format
+                'vars' => [ // email vars
+                    'first_name' => 'John',
+                    'last_name' => 'Doe',
+                    'email' => 'john.doe@example.com'
+                ]
+            ])
         ];
     
         try {
@@ -141,13 +145,11 @@ Example - Send push notification to a user:
         $notification = [
             'model' => 'User',
             'object_id' => $this->id,
-            'property' => 'phone',
+            'property' => 'id', // using tags right now, User IDs being used for the tags
             'type' => 'PUSH',
-            'subject' => 'You got a new push!', // This is the copy for the push
-            'vars' => json_encode([
-                'audience'
-            ]), // Not used for PUSH type
-            'template' => 'welcome' // Template name doesn't need to be used
+            'data' => json_encode([
+                'notification' => 'You got a new push!', // This is the copy for the push
+            ]),
         ];
         
         try {

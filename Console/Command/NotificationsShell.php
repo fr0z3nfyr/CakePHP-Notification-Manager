@@ -15,7 +15,7 @@ class NotificationsShell extends AppShell
         $notifications = $NotificationModel->findBySentAndErrors(false, null);
         
         foreach ($notifications as $notification) {
-            Notifier::notify($notification);
+            Notifier::notify($notification->data['Notification']);
         }
 	}
 

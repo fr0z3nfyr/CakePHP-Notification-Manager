@@ -11,7 +11,7 @@ Supports notification setup for email, push notification.
 * PHP >= 5.3
 * CakePHP 2.x
 * Basic knowledge of CRON setup
-* UrbanAirship account for push notifications
+* UrbanAirship PHP SDK v2: https://github.com/urbanairship/php-library2.git
 * Twillio account for sms notifications (coming soon)
 
 ## Installation
@@ -66,11 +66,19 @@ Setup the `notifications` table:
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
     
 
-Edit the `/app/Plugin/NotificationManager/Config/bootstrap.php` file and update `UrbanAirship` keys:
+Edit the `/app/Plugin/NotificationManager/Config/bootstrap.php` file and update `autoloader` and `UrbanAirship` keys:
 
-    Configure::write('UrbanAirship.app.key', 'xxxxxxxxxxxxxxxxxxxx');
-    Configure::write('UrbanAirship.app.secret', 'xxxxxxxxxxxxxxxx');
-    Configure::write('UrbanAirship.app.masterSecret', 'xxxxxxxxxxxxxxxx');
+    // Load composer autoload.
+    require APP . '/Vendor/autoload.php';
+    
+    // Remove and re-prepend CakePHP's autoloader as composer thinks it is the most important.
+    // See https://github.com/composer/composer/commit/c80cb76b9b5082ecc3e5b53b1050f76bb27b127b
+    spl_autoload_unregister(array('App', 'load'));
+    spl_autoload_register(array('App', 'load'), true, true);
+    
+    Configure::write('UrbanAirship.key', 'xxxxxxxxxxxxxxxxxxxx');
+    Configure::write('UrbanAirship.secret', 'xxxxxxxxxxxxxxxx');
+    Configure::write('UrbanAirship.masterSecret', 'xxxxxxxxxxxxxxxx');
 
 Set up notification events in your models.
 
@@ -84,6 +92,7 @@ Example - Send `Welcome` email for a new user:
         $notification = [
             'model' => 'User', // name of the object model
             'object_id' => $this->id, // id of the object
+            'property' => 'email', // property of the object that will be used to notify (ex. email, phone, cell)
             'type' => 'EMAIL', // Type of notification, can be EMAIL, PUSH, or SMS
             'subject' => 'Welcome to my new app!', // The subject line of the email
             'vars' => json_encode([ // In this case vars for the email template
@@ -114,9 +123,12 @@ Example - Send push notification to a user:
         $notification = [
             'model' => 'User',
             'object_id' => $this->id,
+            'property' => 'phone',
             'type' => 'PUSH',
             'subject' => 'You got a new push!', // This is the copy for the push
-            'vars' => NULL, // Not used for PUSH type
+            'vars' => json_encode([
+                'audience'
+            ]), // Not used for PUSH type
             'template' => 'welcome' // Template name doesn't need to be used
         ];
         

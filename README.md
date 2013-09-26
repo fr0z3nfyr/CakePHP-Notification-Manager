@@ -66,19 +66,20 @@ Setup the `notifications` table:
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
     
 
-Edit the `/app/Plugin/NotificationManager/Config/bootstrap.php` file and update `autoloader` and `UrbanAirship` keys:
+Setup the `autoloader` if you are using composer in `/app/Config/bootstrap.php`:
 
     // Load composer autoload.
     require APP . '/Vendor/autoload.php';
-    
+
     // Remove and re-prepend CakePHP's autoloader as composer thinks it is the most important.
     // See https://github.com/composer/composer/commit/c80cb76b9b5082ecc3e5b53b1050f76bb27b127b
     spl_autoload_unregister(array('App', 'load'));
     spl_autoload_register(array('App', 'load'), true, true);
-    
+
+Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` keys:
+
     Configure::write('UrbanAirship.key', 'xxxxxxxxxxxxxxxxxxxx');
     Configure::write('UrbanAirship.secret', 'xxxxxxxxxxxxxxxx');
-    Configure::write('UrbanAirship.masterSecret', 'xxxxxxxxxxxxxxxx');
 
 Set up notification events in your models.
 

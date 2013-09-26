@@ -20,7 +20,7 @@ class Notifier
         $obj = new $model($notification['object_id']);
         $obj->read();
         
-        return $obj->field($notification['property']));
+        return $obj->field($notification['property']);
     }
     
 	public static function notify($notification)

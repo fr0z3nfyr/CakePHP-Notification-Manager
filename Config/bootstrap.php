@@ -5,15 +5,15 @@
  * Remember to fill in the fields!
  */
 
-if (!Configure::read('NotificationManager.UrbanAirship')) {
+if (Configure::check('NotificationManager.UrbanAirship')) {
     Configure::write('NotificationManager.UrbanAirship.key', '');
     Configure::write('NotificationManager.UrbanAirship.secret', '');
 }
 
-App::build(
+App::build([
     'Model' => [
         '/app/Plugins/NotificationManager/Model/'
     ]
-);
+]);
     
 ?>

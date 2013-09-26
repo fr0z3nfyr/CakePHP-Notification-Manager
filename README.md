@@ -54,6 +54,7 @@ Setup the `notifications` table:
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `model` varchar(128) DEFAULT NULL,
       `object_id` int(11) DEFAULT NULL,
+      `property` varchar(128) DEFAULT NULL,
       `type` enum('EMAIL','PUSH','SMS') DEFAULT NULL,
       `subject` varchar(256) DEFAULT NULL,
       `vars` text,
@@ -75,6 +76,13 @@ Setup the `autoloader` if you are using composer in `/app/Config/bootstrap.php`:
     // See https://github.com/composer/composer/commit/c80cb76b9b5082ecc3e5b53b1050f76bb27b127b
     spl_autoload_unregister(array('App', 'load'));
     spl_autoload_register(array('App', 'load'), true, true);
+    
+    // Load the bootstrap file to load Notification Model
+    CakePlugin::loadAll([
+        'NotificationManager' => [
+            'bootstrap' => true
+        ]
+    ]);
 
 Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` keys:
 
@@ -85,7 +93,16 @@ Set up notification events in your models.
 
 Example - Send `Welcome` email for a new user:
 
-    App::uses('Notification', 'NotificationManager.Model');
+    public $hasMany = [
+        ...
+        'Notification' => [
+            'foreignKey' => 'object_id',
+            'conditions' => [
+                'Notification.model' => 'User'
+            ]
+        ],
+        ...
+    ];
     ...
     public function register()
     {

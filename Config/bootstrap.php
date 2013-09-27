@@ -9,11 +9,5 @@ if (!Configure::check('NotificationManager.UrbanAirship')) {
     Configure::write('NotificationManager.UrbanAirship.key', '');
     Configure::write('NotificationManager.UrbanAirship.secret', '');
 }
-
-App::build([
-    'Model' => [
-        '/app/Plugins/NotificationManager/Model/'
-    ]
-]);
     
 ?>

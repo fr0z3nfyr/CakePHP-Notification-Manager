@@ -17,10 +17,17 @@ class Notifier
         
         $model = $notification['model'];
         
-        $obj = new $model($notification['object_id']);
-        $obj->read();
+        $obj = new $model();
         
-        return $obj->field($notification['property']);
+        if (empty($notification['object_id_field'])) {
+            $notification['object_id_field'] = 'id';
+        }
+        
+        return Hash::get($obj->find('first', [
+            'conditions' => [
+                $notification['object_id_field'] => $notification['object_id']
+            ]
+        ]), $notification['model'].$notification['property']);
     }
     
 	public static function notify($notification)
@@ -31,9 +38,20 @@ class Notifier
         
         switch ($notification['type']) {
             case 'PUSH':
-                $notify->to = P\tag(static::getProperty($notification));
-                $notify->notification = P\notification($data->notification);
-                $notify->devices = P\all;
+                $notify->to = P\deviceToken(static::getProperty($notification));
+                $notify->notification = P\notification(
+                    $data->notification,
+                    [
+                        "ios" => P\ios(
+                                    $data->notification,
+                                    "+1",
+                                    "",
+                                    false,
+                                    $data->payload
+                                 )
+                    ]
+                );
+                $notify->deviceTypes = P\all;
                 break;
             case 'EMAIL':
                 $notify->to = static::getProperty($notification);

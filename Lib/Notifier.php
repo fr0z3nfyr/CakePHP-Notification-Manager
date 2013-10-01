@@ -87,7 +87,7 @@ class Notifier
 
         $airship = new Airship(
             Configure::read('NotificationManager.UrbanAirship.key'), 
-            Configure::read('NotificationManager.UrbanAirship.secret')
+            Configure::read('NotificationManager.UrbanAirship.master')
         );
         
         try {

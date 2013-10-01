@@ -27,7 +27,7 @@ class Notifier
             'conditions' => [
                 $notification['object_id_field'] => $notification['object_id']
             ]
-        ]), $notification['model'].$notification['property']);
+        ]), $notification['model'].'.'.$notification['property']);
     }
     
 	public static function notify($notification)

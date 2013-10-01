@@ -53,6 +53,7 @@ Setup the `notifications` table:
     CREATE TABLE `notifications` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
       `model` varchar(128) DEFAULT NULL,
+      `object_id_field` varchar(128) DEFAULT 'id',
       `object_id` int(11) DEFAULT NULL,
       `property` varchar(128) DEFAULT NULL,
       `type` enum('EMAIL','PUSH','SMS') DEFAULT NULL,
@@ -168,7 +169,7 @@ Set up a `cronjob` to run the notifications in the background:
 
 Example `cronjob` that runs the `NotificationManager.Notifications` every minute, replace `/var/www/html/app/Console/cake` with the cake console location in your own setup:
 
-    */1 * * * * /var/www/html/app/Console/cake NotificationManager.Notifications
+    * * * * * /var/www/html/app/Console/cake NotificationManager.Notifications
 
 ## Todo
 

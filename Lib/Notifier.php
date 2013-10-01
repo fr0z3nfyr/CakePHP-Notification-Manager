@@ -6,6 +6,8 @@ use UrbanAirship\Push as P;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
+App::import('Vendor', 'twilio/sdk/Services/Twilio');
+
 /**
  * 
  */
@@ -62,7 +64,8 @@ class Notifier
                 $notify->subject = !empty($data->subject) ? $data->subject : '';
                 break;
             case 'SMS':
-                $notify = false;
+                $notify->to = static::getProperty($notification);
+                $notify->notification = $data->notification;
                 break;
         }
 
@@ -122,6 +125,20 @@ class Notifier
     
     public static function sms($data)
     {
+        try {
+            $client = new Services_Twilio(
+                Configure::read('NotificationManager.Twilio.sid'),
+                Configure::read('NotificationManager.Twilio.token')
+            );
+            $message = $client->account->sms_messages->create(
+                Configure::read('NotificationManager.Twilio.number'),
+                $data->to,
+                $data->notification
+            );
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        
         return true;
     }
 }

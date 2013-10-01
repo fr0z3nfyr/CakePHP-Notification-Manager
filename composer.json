@@ -13,7 +13,8 @@
     ],
     "require": {
         "composer/installers": "~1.0",
-        "urbanairship/urbanairship": ">=0.1.3"
+        "urbanairship/urbanairship": ">=0.1.3",
+        "twilio/sdk": ">=3.10.0"
     },
     "config": {
         "vendor-dir": "Vendor"

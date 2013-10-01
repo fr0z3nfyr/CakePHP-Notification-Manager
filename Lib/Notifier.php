@@ -47,7 +47,7 @@ class Notifier
                                     "+1",
                                     "",
                                     false,
-                                    $data->payload ? $data->payload : []
+                                    (!empty($data->payload)) ? $data->payload : []
                                  )
                     ]
                 );

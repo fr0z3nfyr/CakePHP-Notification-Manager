@@ -38,25 +38,44 @@ class Notifier
         
         $notify = new stdClass();
         
+        // Get the property to contact
+        try {
+            $property = static::getProperty($notification);
+        } catch (Exception $e) {
+            if (!empty($data->to)) {
+                $property = $data->to
+            } else {
+                return false;
+            }
+        }
+        
+        // If property is empty (find error)
+        // Backup into the contact field in the data
+        if (empty($property) && !empty($data->to)) {
+            $property = $data->to
+        } else {
+            return false;
+        }
+        
         switch ($notification['type']) {
             case 'PUSH':
-                $notify->to = P\deviceToken(static::getProperty($notification));
+                $notify->to = P\deviceToken($property);
                 $notify->notification = P\notification(
                     $data->notification,
                     [
                         "ios" => P\ios(
-                                    $data->notification,
-                                    "+1",
-                                    "",
-                                    false,
-                                    (!empty($data->payload)) ? $data->payload : []
-                                 )
+                            $data->notification,
+                            "+1",
+                            "",
+                            false,
+                            (!empty($data->payload)) ? $data->payload : []
+                        )
                     ]
                 );
                 $notify->deviceTypes = P\all;
                 break;
             case 'EMAIL':
-                $notify->to = static::getProperty($notification);
+                $notify->to = $property;
                 $notify->settings = !empty($data->settings) ? $data->settings : 'default';
                 $notify->vars = !empty($data->vars) ? $data->vars : [];
                 $notify->template = !empty($data->template) ? $data->template : 'default';
@@ -64,7 +83,7 @@ class Notifier
                 $notify->subject = !empty($data->subject) ? $data->subject : '';
                 break;
             case 'SMS':
-                $notify->to = static::getProperty($notification);
+                $notify->to = $property;
                 $notify->notification = $data->notification;
                 break;
         }

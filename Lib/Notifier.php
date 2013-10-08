@@ -43,10 +43,17 @@ class Notifier
             $property = static::getProperty($notification);
             
             if ($notification['type'] == 'PUSH') {
-                if (is_array($property)) {
-                    foreach ($property as &$prop) {
-                        $prop = P\deviceToken($prop);
+                if (is_array($property) && count($property) > 1) {
+                    $property = P\and_($property);
+                    
+                    foreach ($property['and'] as &$prop) {
+                        foreach ($prop as $key => $p) {
+                            $prop['device_token'] = $p;
+                            unset($prop[$key]);
+                        }
                     }
+                } else if (is_array($property)) {
+                    $property = P\deviceToken($property[0]);
                 } else {
                     $property = P\deviceToken($property);
                 }                    
@@ -58,7 +65,7 @@ class Notifier
                 return false;
             }
         }
-
+        // pr($property);exit;
         // If property is empty (find error)
         // Backup into the contact field in the data
         if (empty($property) && !empty($data->to)) {
@@ -70,18 +77,32 @@ class Notifier
         switch ($notification['type']) {
             case 'PUSH':
                 $notify->to = $property;
-                $notify->notification = P\notification(
-                    $data->notification,
-                    [
-                        "ios" => P\ios(
-                            $data->notification,
-                            "+1",
-                            "",
-                            false,
-                            (!empty($data->payload)) ? $data->payload : []
-                        )
-                    ]
-                );
+                if ((!empty($data->payload))) {
+                    $notify->notification = P\notification(
+                        $data->notification,
+                        [
+                            "ios" => P\ios(
+                                $data->notification,
+                                "+1",
+                                "",
+                                false,
+                                (!empty($data->payload)) ? $data->payload : ''
+                            )
+                        ]
+                    );
+                } else {
+                    $notify->notification = P\notification(
+                        $data->notification,
+                        [
+                            "ios" => P\ios(
+                                $data->notification,
+                                "+1",
+                                "",
+                                false
+                            )
+                        ]
+                    );
+                }
                 $notify->deviceTypes = P\all;
                 break;
             case 'EMAIL':

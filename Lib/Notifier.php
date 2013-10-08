@@ -58,12 +58,12 @@ class Notifier
                 return false;
             }
         }
-        
+
         // If property is empty (find error)
         // Backup into the contact field in the data
         if (empty($property) && !empty($data->to)) {
             $property = $data->to;
-        } else {
+        } else if (empty($property)) {
             return false;
         }
         

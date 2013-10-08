@@ -25,7 +25,7 @@ class Notifier
             $notification['object_id_field'] = 'id';
         }
         
-        return Hash::get($obj->find('all', [
+        return Hash::extract($obj->find('all', [
             'conditions' => [
                 $notification['object_id_field'] => $notification['object_id']
             ]

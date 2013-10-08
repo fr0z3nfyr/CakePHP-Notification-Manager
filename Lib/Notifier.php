@@ -53,7 +53,7 @@ class Notifier
             }
         } catch (Exception $e) {
             if (!empty($data->to)) {
-                $property = $data->to
+                $property = $data->to;
             } else {
                 return false;
             }

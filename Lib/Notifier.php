@@ -59,13 +59,6 @@ class Notifier
             }
         }
         
-        if (is_array($property)) {
-            switch $notification['type'] {
-                case 'PUSH':
-                    
-            }
-        }
-        
         // If property is empty (find error)
         // Backup into the contact field in the data
         if (empty($property) && !empty($data->to)) {

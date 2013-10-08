@@ -25,11 +25,11 @@ class Notifier
             $notification['object_id_field'] = 'id';
         }
         
-        return Hash::get($obj->find('first', [
+        return Hash::get($obj->find('all', [
             'conditions' => [
                 $notification['object_id_field'] => $notification['object_id']
             ]
-        ]), $notification['model'].'.'.$notification['property']);
+        ]), '{n}.'.$notification['model'].'.'.$notification['property']);
     }
     
 	public static function notify($notification)
@@ -41,11 +41,28 @@ class Notifier
         // Get the property to contact
         try {
             $property = static::getProperty($notification);
+            
+            if ($notification['type'] == 'PUSH') {
+                if (is_array($property)) {
+                    foreach ($property as &$prop) {
+                        $prop = P\deviceToken($prop);
+                    }
+                } else {
+                    $property = P\deviceToken($property);
+                }                    
+            }
         } catch (Exception $e) {
             if (!empty($data->to)) {
                 $property = $data->to
             } else {
                 return false;
+            }
+        }
+        
+        if (is_array($property)) {
+            switch $notification['type'] {
+                case 'PUSH':
+                    
             }
         }
         
@@ -59,7 +76,7 @@ class Notifier
         
         switch ($notification['type']) {
             case 'PUSH':
-                $notify->to = P\deviceToken($property);
+                $notify->to = $property;
                 $notify->notification = P\notification(
                     $data->notification,
                     [

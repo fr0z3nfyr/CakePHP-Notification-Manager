@@ -85,10 +85,18 @@ Setup the `autoloader` if you are using composer in `/app/Config/bootstrap.php`:
         ]
     ]);
 
-Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` keys:
+Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` and `Twilio` keys:
 
-    Configure::write('UrbanAirship.key', 'xxxxxxxxxxxxxxxxxxxx');
-    Configure::write('UrbanAirship.secret', 'xxxxxxxxxxxxxxxx');
+    if (!Configure::check('NotificationManager.UrbanAirship')) {
+        Configure::write('NotificationManager.UrbanAirship.key', '');
+        Configure::write('NotificationManager.UrbanAirship.master', '');
+    }
+
+    if (!Configure::check('NotificationManager.Twilio')) {
+        Configure::write('NotificationManager.Twilio.sid', '');
+        Configure::write('NotificationManager.Twilio.token', '');
+        Configure::write('NotificationManager.Twilio.number', '');
+    }
 
 Set up notification events in your models.
 

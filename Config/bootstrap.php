@@ -5,11 +5,11 @@
  * Remember to fill in the fields!
  */
 
-Configure::write('NotificationManager.UrbanAirship.key', '');
-Configure::write('NotificationManager.UrbanAirship.master', '');
+Configure::write('UrbanAirship.key', '');
+Configure::write('UrbanAirship.master', '');
 
-Configure::write('NotificationManager.Twilio.sid', '');
-Configure::write('NotificationManager.Twilio.token', '');
-Configure::write('NotificationManager.Twilio.number', '');
+Configure::write('Twilio.sid', '');
+Configure::write('Twilio.token', '');
+Configure::write('Twilio.number', '');
 
 require APP . 'Plugin' . DS . 'NotificationManager' . DS . 'Lib' . DS . 'Notifier.php';

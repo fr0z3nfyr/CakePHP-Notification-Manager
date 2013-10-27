@@ -139,8 +139,8 @@ class Notifier
         UALog::setLogHandlers(array(new StreamHandler("php://stdout", Logger::DEBUG)));
 
         $airship = new Airship(
-            Configure::read('NotificationManager.UrbanAirship.key'), 
-            Configure::read('NotificationManager.UrbanAirship.master')
+            Configure::read('UrbanAirship.key'), 
+            Configure::read('UrbanAirship.master')
         );
         
         try {
@@ -177,11 +177,11 @@ class Notifier
     {
         try {
             $client = new Services_Twilio(
-                Configure::read('NotificationManager.Twilio.sid'),
-                Configure::read('NotificationManager.Twilio.token')
+                Configure::read('Twilio.sid'),
+                Configure::read('Twilio.token')
             );
             $message = $client->account->sms_messages->create(
-                Configure::read('NotificationManager.Twilio.number'),
+                Configure::read('Twilio.number'),
                 $data->to,
                 $data->notification
             );

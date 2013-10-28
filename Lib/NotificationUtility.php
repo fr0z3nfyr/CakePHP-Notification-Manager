@@ -11,7 +11,7 @@ App::import('Vendor', 'twilio/sdk/Services/Twilio');
 /**
  * 
  */
-class Notifier
+class NotificationUtility
 {
     private static function getProperty($notification)
     {
@@ -121,13 +121,13 @@ class Notifier
 
         switch ($notification['type']) {
             case 'PUSH':
-                Notifier::push($notify);
+                NotificationUtility::push($notify);
                 break;
             case 'EMAIL':
-                Notifier::email($notify);
+                NotificationUtility::email($notify);
                 break;
             case 'SMS':
-                Notifier::sms($notify);
+                NotificationUtility::sms($notify);
                 break;
         }
         

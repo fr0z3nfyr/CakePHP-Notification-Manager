@@ -12,4 +12,4 @@ Configure::write('Twilio.sid', '');
 Configure::write('Twilio.token', '');
 Configure::write('Twilio.number', '');
 
-require APP . 'Plugin' . DS . 'NotificationManager' . DS . 'Lib' . DS . 'Notifier.php';
+require APP . 'Plugin' . DS . 'NotificationManager' . DS . 'Lib' . DS . 'NotificationUtility.php';

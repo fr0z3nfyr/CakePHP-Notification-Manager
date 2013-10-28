@@ -1,6 +1,6 @@
 <?php
 
-App::uses('Notifier', 'NotificationManager.Lib');
+App::uses('NotificationUtility', 'NotificationManager.Lib');
 App::uses('Notification', 'NotificationManager.Model');
 
 /**
@@ -15,7 +15,7 @@ class NotificationsShell extends AppShell
         $notifications = $NotificationModel->findAllBySentAndErrors(false, null);
 
         foreach ($notifications as $notification) {
-            $response = Notifier::notify($notification['Notification']);
+            $response = NotificationUtility::notify($notification['Notification']);
             
             if ($response === true) {
                 $NotificationModel->id = $notification['Notification']['id'];

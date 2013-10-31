@@ -122,13 +122,13 @@ class NotificationUtility
 
         switch ($notification['type']) {
             case 'PUSH':
-                NotificationUtility::push($notify);
+                return NotificationUtility::push($notify);
                 break;
             case 'EMAIL':
-                NotificationUtility::email($notify);
+                return NotificationUtility::email($notify);
                 break;
             case 'SMS':
-                NotificationUtility::sms($notify);
+                return NotificationUtility::sms($notify);
                 break;
         }
         

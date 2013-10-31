@@ -1,5 +1,7 @@
 <?php
 
+App::uses('CakeEmail', 'Network/Email');
+
 use UrbanAirship\Airship;
 use UrbanAirship\UALog;
 use UrbanAirship\Push as P;
@@ -25,11 +27,14 @@ class NotificationUtility
             $notification['object_id_field'] = 'id';
         }
         
-        return Hash::extract($obj->find('all', [
+        $params = [
             'conditions' => [
-                $notification['object_id_field'] => $notification['object_id']
-            ]
-        ]), '{n}.'.$notification['model'].'.'.$notification['property']);
+                $model.'.'.$notification['object_id_field'] => $notification['object_id']
+            ],
+            'recursive' => -1
+        ];
+        
+        return Hash::extract($obj->find('all', $params), '{n}.'.$notification['model'].'.'.$notification['property']);
     }
     
 	public static function notify($notification)
@@ -41,7 +46,7 @@ class NotificationUtility
         // Get the property to contact
         try {
             $property = static::getProperty($notification);
-            
+
             if ($notification['type'] == 'PUSH') {
                 if (is_array($property) && count($property) > 1) {
                     $property = P\and_($property);
@@ -62,7 +67,7 @@ class NotificationUtility
             if (!empty($data->to)) {
                 $property = $data->to;
             } else {
-                return false;
+                return 'Could not get property for notification';
             }
         }
 
@@ -162,8 +167,7 @@ class NotificationUtility
         try {
             $email = new CakeEmail($data->settings);
             $email -> viewVars($data->vars)
-                -> template($data->template)
-                -> layout($data->layout)
+                -> template($data->template, $data->layout)
                 -> emailFormat($data->format)
                 -> subject($data->subject)
                 -> to($data->to)

@@ -110,6 +110,7 @@ class NotificationUtility
                 $notify->settings = !empty($data->settings) ? $data->settings : 'default';
                 $notify->vars = !empty($data->vars) ? $data->vars : [];
                 $notify->template = !empty($data->template) ? $data->template : 'default';
+                $notify->layout = !empty($data->layout) ? $data->layout : 'default';
                 $notify->format = !empty($data->format) ? $data->format : 'html';
                 $notify->subject = !empty($data->subject) ? $data->subject : '';
                 break;
@@ -162,6 +163,7 @@ class NotificationUtility
             $email = new CakeEmail($data->settings);
             $email -> viewVars($data->vars)
                 -> template($data->template)
+                -> layout($data->layout)
                 -> emailFormat($data->format)
                 -> subject($data->subject)
                 -> to($data->to)

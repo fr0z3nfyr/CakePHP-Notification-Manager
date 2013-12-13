@@ -41,7 +41,7 @@ class NotificationUtility
     {
         $data = json_decode($notification['data']);
         
-        $notify = new stdClass();
+        $notify = [];
         
         // Get the property to contact
         try {
@@ -81,9 +81,9 @@ class NotificationUtility
         
         switch ($notification['type']) {
             case 'PUSH':
-                $notify->to = $property;
+                $notify['to'] = $property;
                 if ((!empty($data->payload))) {
-                    $notify->notification = P\notification(
+                    $notify['notification'] = P\notification(
                         $data->notification,
                         [
                             "ios" => P\ios(
@@ -96,7 +96,7 @@ class NotificationUtility
                         ]
                     );
                 } else {
-                    $notify->notification = P\notification(
+                    $notify['notification'] = P\notification(
                         $data->notification,
                         [
                             "ios" => P\ios(
@@ -108,20 +108,21 @@ class NotificationUtility
                         ]
                     );
                 }
-                $notify->deviceTypes = P\all;
+                $notify['deviceTypes'] = P\all;
                 break;
             case 'EMAIL':
-                $notify->to = $property;
-                $notify->settings = !empty($data->settings) ? $data->settings : 'default';
-                $notify->vars = !empty($data->vars) ? $data->vars : [];
-                $notify->template = !empty($data->template) ? $data->template : 'default';
-                $notify->layout = !empty($data->layout) ? $data->layout : 'default';
-                $notify->format = !empty($data->format) ? $data->format : 'html';
-                $notify->subject = !empty($data->subject) ? $data->subject : '';
+                $notify['to'] = $property;
+                $notify = array_merge($notify, json_decode(json_encode($data), true));
+                if (empty($notify['emailFormat']) && !empty($notify['format'])) {
+                    $notify['emailFormat'] = $notify['format'];
+                }
+                if (empty($notify['viewVars']) && !empty($notify['vars'])) {
+                    $notify['viewVars'] = $notify['vars'];
+                }
                 break;
             case 'SMS':
-                $notify->to = $property;
-                $notify->notification = $data->notification;
+                $notify['to'] = $property;
+                $notify['notification'] = $data->notification;
                 break;
         }
 
@@ -151,9 +152,9 @@ class NotificationUtility
         
         try {
             $response = $airship->push()
-                ->setAudience($data->to)
-                ->setNotification($data->notification)
-                ->setDeviceTypes($data->deviceTypes)
+                ->setAudience($data['to'])
+                ->setNotification($data['notification'])
+                ->setDeviceTypes($data['deviceTypes'])
                 ->send();
         } catch (AirshipException $e) {
             return $e->getMessage();
@@ -165,15 +166,12 @@ class NotificationUtility
     public static function email($data)
     {
         try {
-            $email = new CakeEmail($data->settings);
-            $email -> viewVars($data->vars)
-                -> template($data->template, $data->layout)
-                -> emailFormat($data->format)
-                -> subject($data->subject)
-                -> to($data->to)
+            $email = new CakeEmail();
+            $email -> config(!empty($data['settings']) ? $data['settings'] : 'default');
+            $email -> config($data)
                 -> send();
         } catch (Exception $e) {
-            return $e->getMessage();
+            return json_encode($email) . ' ' . $e->getMessage();
         }
         
         return true;
@@ -188,8 +186,8 @@ class NotificationUtility
             );
             $message = $client->account->sms_messages->create(
                 Configure::read('Twilio.number'),
-                $data->to,
-                $data->notification
+                $data['to'],
+                $data['notification']
             );
         } catch (Exception $e) {
             return $e->getMessage();

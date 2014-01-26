@@ -125,8 +125,8 @@ Example - Send `Welcome` email for a new user:
                 'settings' => 'default', // email settings
                 'subject' => 'Welcome!', // email subject
                 'template' => 'welcome', // email template
-                'format' => 'html', // email format
-                'vars' => [ // email vars
+                'emailFormat' => 'html', // email format
+                'viewVars' => [ // email vars
                     'first_name' => 'John',
                     'last_name' => 'Doe',
                     'email' => 'john.doe@example.com'

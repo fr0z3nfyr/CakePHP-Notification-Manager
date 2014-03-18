@@ -15,29 +15,7 @@ App::import('Vendor', 'twilio/sdk/Services/Twilio');
  */
 class NotificationUtility
 {
-    private static function getProperty($notification)
-    {
-        App::uses($notification['model'], 'Model');
-        
-        $model = $notification['model'];
-        
-        $obj = new $model();
-        
-        if (empty($notification['object_id_field'])) {
-            $notification['object_id_field'] = 'id';
-        }
-        
-        $params = [
-            'conditions' => [
-                $model.'.'.$notification['object_id_field'] => $notification['object_id']
-            ],
-            'recursive' => -1
-        ];
-        
-        return Hash::extract($obj->find('all', $params), '{n}.'.$notification['model'].'.'.$notification['property']);
-    }
-    
-	public static function notify($notification)
+    public static function notify($notification)
     {
         $data = json_decode($notification['data']);
         
@@ -67,7 +45,7 @@ class NotificationUtility
             if (!empty($data->to)) {
                 $property = $data->to;
             } else {
-                return 'Could not get property for notification';
+                return 'Could not get property for notification: ' . $e->getMessage();
             }
         }
 
@@ -77,6 +55,14 @@ class NotificationUtility
             $property = $data->to;
         } else if (empty($property)) {
             return false;
+        }
+        
+        if (!empty($notification['condition'])) {
+            $test = static::checkConditions($notification);
+            
+            if ($test !== true) {
+                return 'Conditions not met: ' . $test;
+            }
         }
         
         switch ($notification['type']) {
@@ -139,6 +125,47 @@ class NotificationUtility
         }
         
         return true;
+    }
+    
+    private static function getProperty($notification)
+    {
+        App::uses($notification['model'], 'Model');
+        
+        $model = $notification['model'];
+        
+        $obj = new $model();
+        
+        if (empty($notification['object_id_field'])) {
+            $notification['object_id_field'] = 'id';
+        }
+        
+        $params = [
+            'conditions' => [
+                $model.'.'.$notification['object_id_field'] => $notification['object_id']
+            ],
+            'recursive' => -1
+        ];
+        
+        return Hash::extract($obj->find('all', $params), '{n}.'.$notification['model'].'.'.$notification['property']);
+    }
+    
+    private static function checkConditions($notification)
+    {
+        App::uses($notification['model'], 'Model');
+        
+        $model = $notification['model'];
+        
+        $obj = new $model();
+        
+        if (empty($notification['object_id_field'])) {
+            $notification['object_id_field'] = 'id';
+        }
+        
+        if (!method_exists($obj, $notification['condition'])) {
+            return false;
+        }
+        
+        return $obj->{$notification['condition']}($notification);
     }
     
     public static function push($data)

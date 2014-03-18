@@ -167,8 +167,8 @@ class NotificationUtility
     {
         try {
             $email = new CakeEmail();
-            $email -> config(!empty($data['settings']) ? $data['settings'] : 'default');
-            $email -> config($data)
+            $email->config(!empty($data['settings']) ? $data['settings'] : 'default');
+            $email->config($data)
                 -> send();
         } catch (Exception $e) {
             return json_encode($email) . ' ' . $e->getMessage();

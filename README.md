@@ -12,7 +12,7 @@ Supports notification setup for email, push notification.
 * CakePHP 2.x
 * Basic knowledge of CRON setup
 * UrbanAirship PHP SDK v2: https://github.com/urbanairship/php-library2.git
-* Twillio account for sms notifications (coming soon)
+* Twillio account for sms notifications
 
 ## Installation
 
@@ -58,7 +58,11 @@ Setup the `notifications` table:
       `property` varchar(128) DEFAULT NULL,
       `type` enum('EMAIL','PUSH','SMS') DEFAULT NULL,
       `data` text,
+      `send_on` datetime DEFAULT NULL,
+      `timezone` varchar(128) DEFAULT 'UTC',
+      `condition` varchar(128) DEFAULT NULL,
       `sent` tinyint(1) DEFAULT '0',
+      `sent_on` datetime DEFAULT NULL,
       `errors` text,
       `created` datetime DEFAULT NULL,
       `modified` datetime DEFAULT NULL,
@@ -75,6 +79,18 @@ Setup the `autoloader` if you are using composer in `/app/Config/bootstrap.php`:
     // See https://github.com/composer/composer/commit/c80cb76b9b5082ecc3e5b53b1050f76bb27b127b
     spl_autoload_unregister(array('App', 'load'));
     spl_autoload_register(array('App', 'load'), true, true);
+    
+    // Load the bootstrap file to load Notification Model
+    CakePlugin::loadAll([
+        'NotificationManager' => [
+            'bootstrap' => true
+        ]
+    ]);
+
+If you are not using composer, manually set up the dependencies:
+
+    // Load stripe
+    App::import('Vendor', 'stripe/lib/Stripe');
     
     // Load the bootstrap file to load Notification Model
     CakePlugin::loadAll([
@@ -183,7 +199,6 @@ Example `cronjob` that runs the `NotificationManager.Notifications` every minute
 * Comments!
 * Add device specific push notification
 * Set up more error checking
-* Add SMS
 * Add Unit tests!
 
 ## Aknowledgements

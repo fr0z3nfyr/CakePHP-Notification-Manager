@@ -87,6 +87,18 @@ Setup the `autoloader` if you are using composer in `/app/Config/bootstrap.php`:
         ]
     ]);
 
+If you are not using composer, manually set up the dependencies:
+
+    // Load stripe
+    App::import('Vendor', 'stripe/lib/Stripe');
+    
+    // Load the bootstrap file to load Notification Model
+    CakePlugin::loadAll([
+        'NotificationManager' => [
+            'bootstrap' => true
+        ]
+    ]);
+
 Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` and `Twilio` keys:
 
     if (!Configure::check('UrbanAirship')) {

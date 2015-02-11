@@ -1,13 +1,6 @@
 <?php
 
 App::uses('CakeEmail', 'Network/Email');
-
-use UrbanAirship\Airship;
-use UrbanAirship\UALog;
-use UrbanAirship\Push as P;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-
 App::import('Vendor', 'twilio/sdk/Services/Twilio');
 
 /**
@@ -91,7 +84,8 @@ class NotificationUtility
         
         $extract = $model.'.'.$notification['property'];
         $row = $obj->find('first', $params);
-        return Hash::extract($row, $extract);
+
+        return Hash::get($row, $extract);
     }
     
     private static function checkConditions($notification)

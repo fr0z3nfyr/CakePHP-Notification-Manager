@@ -18,29 +18,10 @@ class NotificationUtility
     public static function notify($notification)
     {
         $data = json_decode($notification['data']);
-        
         $notify = [];
         
-        // Get the property to contact
         try {
             $property = static::getProperty($notification);
-
-            if ($notification['type'] == 'PUSH') {
-                if (is_array($property) && count($property) > 1) {
-                    $property = P\and_($property);
-                    
-                    foreach ($property['and'] as &$prop) {
-                        foreach ($prop as $key => $p) {
-                            $prop['device_token'] = $p;
-                            unset($prop[$key]);
-                        }
-                    }
-                } else if (is_array($property)) {
-                    $property = P\deviceToken($property[0]);
-                } else {
-                    $property = P\deviceToken($property);
-                }                    
-            }
         } catch (Exception $e) {
             if (!empty($data->to)) {
                 $property = $data->to;
@@ -49,8 +30,6 @@ class NotificationUtility
             }
         }
 
-        // If property is empty (find error)
-        // Backup into the contact field in the data
         if (empty($property) && !empty($data->to)) {
             $property = $data->to;
         } else if (empty($property)) {
@@ -66,36 +45,6 @@ class NotificationUtility
         }
         
         switch ($notification['type']) {
-            case 'PUSH':
-                $notify['to'] = $property;
-                if ((!empty($data->payload))) {
-                    $notify['notification'] = P\notification(
-                        $data->notification,
-                        [
-                            "ios" => P\ios(
-                                $data->notification,
-                                "+1",
-                                "",
-                                false,
-                                (!empty($data->payload)) ? $data->payload : ''
-                            )
-                        ]
-                    );
-                } else {
-                    $notify['notification'] = P\notification(
-                        $data->notification,
-                        [
-                            "ios" => P\ios(
-                                $data->notification,
-                                "+1",
-                                "",
-                                false
-                            )
-                        ]
-                    );
-                }
-                $notify['deviceTypes'] = P\all;
-                break;
             case 'EMAIL':
                 $notify['to'] = explode(',',$property);
                 $notify = array_merge($notify, json_decode(json_encode($data), true));
@@ -113,9 +62,6 @@ class NotificationUtility
         }
 
         switch ($notification['type']) {
-            case 'PUSH':
-                return NotificationUtility::push($notify);
-                break;
             case 'EMAIL':
                 return NotificationUtility::email($notify);
                 break;
@@ -130,31 +76,28 @@ class NotificationUtility
     private static function getProperty($notification)
     {
         App::uses($notification['model'], 'Model');
-        
         $model = $notification['model'];
-        
         $obj = new $model();
         
         if (empty($notification['object_id_field'])) {
             $notification['object_id_field'] = 'id';
         }
         
+        $field = $model.'.'.$notification['object_id_field'];
         $params = [
-            'conditions' => [
-                $model.'.'.$notification['object_id_field'] => $notification['object_id']
-            ],
+            'conditions' => [$field => $notification['object_id']],
             'recursive' => -1
         ];
         
-        return Hash::extract($obj->find('all', $params), '{n}.'.$notification['model'].'.'.$notification['property']);
+        $extract = $model.'.'.$notification['property'];
+        $row = $obj->find('first', $params);
+        return Hash::extract($row, $extract);
     }
     
     private static function checkConditions($notification)
     {
         App::uses($notification['model'], 'Model');
-        
         $model = $notification['model'];
-        
         $obj = new $model();
         
         if (empty($notification['object_id_field'])) {
@@ -166,28 +109,6 @@ class NotificationUtility
         }
         
         return $obj->{$notification['condition']}($notification);
-    }
-    
-    public static function push($data)
-    {
-        UALog::setLogHandlers(array(new StreamHandler("php://stdout", Logger::DEBUG)));
-
-        $airship = new Airship(
-            Configure::read('UrbanAirship.key'), 
-            Configure::read('UrbanAirship.master')
-        );
-        
-        try {
-            $response = $airship->push()
-                ->setAudience($data['to'])
-                ->setNotification($data['notification'])
-                ->setDeviceTypes($data['deviceTypes'])
-                ->send();
-        } catch (AirshipException $e) {
-            return $e->getMessage();
-        }
-        
-        return true;
     }
     
     public static function email($data)

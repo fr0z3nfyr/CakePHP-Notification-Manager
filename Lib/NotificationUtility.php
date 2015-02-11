@@ -97,7 +97,7 @@ class NotificationUtility
                 $notify['deviceTypes'] = P\all;
                 break;
             case 'EMAIL':
-                $notify['to'] = $property;
+                $notify['to'] = explode(',',$property);
                 $notify = array_merge($notify, json_decode(json_encode($data), true));
                 if (empty($notify['emailFormat']) && !empty($notify['format'])) {
                     $notify['emailFormat'] = $notify['format'];

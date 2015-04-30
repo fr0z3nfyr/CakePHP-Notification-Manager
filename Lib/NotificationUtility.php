@@ -1,7 +1,6 @@
 <?php
 
 App::uses('CakeEmail', 'Network/Email');
-App::import('Vendor', 'twilio/sdk/Services/Twilio');
 
 class NotificationUtility
 {

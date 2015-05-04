@@ -1,7 +1,6 @@
 <?php
 
 App::uses('CakeEmail', 'Network/Email');
-App::import('Vendor', 'twilio/sdk/Services/Twilio');
 
 class NotificationUtility
 {
@@ -113,8 +112,12 @@ class NotificationUtility
 
     public static function sms($data)
     {
+        if (!class_exists('Services_Twilio')) {
+            App::import('Vendor', 'twilio/sdk/Services/Twilio');
+        }
+        
         try {
-            $client = new Services_Twilio(
+            $client = new \Services_Twilio(
                 Configure::read('Twilio.sid'),
                 Configure::read('Twilio.token')
             );

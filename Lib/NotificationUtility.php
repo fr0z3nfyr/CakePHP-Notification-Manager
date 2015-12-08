@@ -35,7 +35,13 @@ class NotificationUtility
 
         switch ($notification['type']) {
             case 'EMAIL':
-                $notify['to'] = explode(',', $property);
+                // we allow $property to hold an accepted $email format in CakeEmail::to($email)
+                if (!is_array($property) && strpos($property,',')){
+                    $notify['to']=explode(',', $property);
+                } else {
+                    $notify['to'] = $property;
+                }
+
                 $notify = array_merge($notify, json_decode(json_encode($data), true));
                 if (empty($notify['emailFormat']) && !empty($notify['format'])) {
                     $notify['emailFormat'] = $notify['format'];
@@ -67,16 +73,13 @@ class NotificationUtility
             $notification['object_id_field'] = 'id';
         }
 
-        $field = $model.'.'.$notification['object_id_field'];
-        $params = [
-            'conditions' => [$field => $notification['object_id']],
-            'recursive' => -1,
-        ];
+        if (method_exists($obj, $notification['property'])) {
+            $value=$obj->$notification['property']($notification);
+        } else {
+            $value=$obj->field($notification['property'],[$notification['object_id_field'] => $notification['object_id']]);
+        }
 
-        $extract = $model.'.'.$notification['property'];
-        $row = $obj->find('first', $params);
-
-        return Hash::get($row, $extract);
+        return $value;
     }
 
     private static function checkConditions($notification)

@@ -52,6 +52,7 @@ Setup the `notifications` table:
 
     CREATE TABLE `notifications` (
       `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `name` varchar(128) DEFAULT NULL,
       `model` varchar(128) DEFAULT NULL,
       `object_id_field` varchar(128) DEFAULT 'id',
       `object_id` varchar(256) DEFAULT NULL,
@@ -112,9 +113,32 @@ Edit `/app/Config/bootstrap.php` file and add `UrbanAirship` and `Twilio` keys:
         Configure::write('Twilio.number', '');
     }
 
-Set up notification events in your models.
 
-Example - Send `Welcome` email for a new user:
+### Optional - Create a callback method
+
+This is useful in those circumstances where the notification address (email, phone, cell) is stored in a different model. 
+
+You can name this method as you wish, and must specify it in the `property` key of your `Notification` model. 
+
+When returning an email address, it can be in any of the formats supported by CakeEmail.
+
+Example:
+
+    public function getNotificationEmail($notification){
+        $this->contain('EmailAddress');
+        $user=$this->find('first',[
+            'conditions'=>[
+                'id'=>$notification['object_id']
+            ]
+        ]);
+        return [
+            $user['EmailAddress']['email_address']=>$user['User']['full_name']
+        ];
+    }
+
+## Set up notification events in your models.
+
+### Example 1: Send Welcome email for a new user
 
     public $hasMany = [
         ...
@@ -132,8 +156,10 @@ Example - Send `Welcome` email for a new user:
         ...
         $notification = [
             'model' => 'User', // name of the object model
+            'name'  => 'welcome email', // name of the notification, to help with categorization
             'object_id' => $this->id, // id of the object
-            'property' => 'email', // property of the object that will be used to notify (ex. email, phone, cell)
+            'property' => 'email', // property of model storing the value to which the notification will be sent (ex. email, phone, cell)
+                                   // can also hold the name of a callback method (e.g. 'getNotificationEmail' in the example above)                                    
             'type' => 'EMAIL', // Type of notification, can be EMAIL, PUSH, or SMS
             'data' => json_encode([
                 'settings' => 'default', // email settings
@@ -142,8 +168,7 @@ Example - Send `Welcome` email for a new user:
                 'emailFormat' => 'html', // email format
                 'viewVars' => [ // email vars
                     'first_name' => 'John',
-                    'last_name' => 'Doe',
-                    'email' => 'john.doe@example.com'
+                    'last_name' => 'Doe'
                 ]
             ])
         ];
@@ -158,7 +183,7 @@ Example - Send `Welcome` email for a new user:
         ...
     }
 
-Example - Send push notification to a user:
+### Example 2: Send push notification to a user
 
     App::uses('Notification', 'NotificationManager.Model');
     ...
@@ -185,13 +210,15 @@ Example - Send push notification to a user:
         ...
     }
 
-Set up a `cronjob` to run the notifications in the background:
+
+## Set up a `cronjob` to run the notifications in the background:
 
     $ sudo crontab -e
 
 Example `cronjob` that runs the `NotificationManager.Notifications` every minute, replace `/var/www/html/app/Console/cake` with the cake console location in your own setup:
 
     * * * * * /var/www/html/app/Console/cake NotificationManager.Notifications
+
 
 ## Todo
 
